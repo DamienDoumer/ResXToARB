@@ -1,8 +1,5 @@
-﻿
-
-using System.Resources.NetStandard;
+﻿using System.Resources.NetStandard;
 using System.Text.RegularExpressions;
-using System.IO;
 using System.Diagnostics;
 using System.Collections;
 using System.Text;
@@ -20,7 +17,7 @@ using var fileWriter = new StreamWriter(arbFlePath);
 using var resxReader = new ResXResourceReader(resxPath);
 int resCount = 0;
 
-fileWriter.WriteLine('{');
+fileWriter.WriteLine("{");
 
 foreach (DictionaryEntry resource in resxReader)
 {
@@ -62,7 +59,8 @@ foreach (DictionaryEntry resource in resxReader)
     resCount++;
 }
 
-fileWriter.WriteLine('}');
+fileWriter.WriteLine("}");
+fileWriter.Close();
 
 Console.WriteLine($"{resCount} resources converted to arb. \nPress Any key to exit.");
 Console.ReadKey();
