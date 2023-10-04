@@ -13,9 +13,14 @@ const string NumericPlaceHolder = "placeholder";
 
 if (!File.Exists(resxPath))
     throw new Exception("Resx File does not exist!!!");
+if (!File.Exists(arbFlePath))
+    File.Create(arbFlePath);
 
 using var fileWriter = new StreamWriter(arbFlePath);
 using var resxReader = new ResXResourceReader(resxPath);
+int resCount = 0;
+
+fileWriter.WriteLine('{');
 
 foreach (DictionaryEntry resource in resxReader)
 {
@@ -26,14 +31,17 @@ foreach (DictionaryEntry resource in resxReader)
     var placeholders = FindAndReplacePlaceHolders(out string processedString,
         resource.Value.ToString()!, NumericPlaceHolder);
     string arbResourceDef = $"""
-        "{resource.Key}": "{processedString}",
-        """ + "\n";
+        "{CamelCaseString(resource.Key.ToString()!)}": "{processedString}",
+        """;
+
+    fileWriter.WriteLine(arbResourceDef);
+
     if (placeholders.Any())
     {
         StringBuilder placeholderBuilder = new StringBuilder();
         foreach (var placeholder in placeholders)
         {
-            placeholderBuilder.Append($"\n\"{placeholder}\": {{}},\n");
+            placeholderBuilder.Append($"\n\t\t\"{placeholder}\": {{}},\n");
         }
 
         var arbPlaceholderValue = $"\"@{resource.Key}\": {{\n" +
@@ -48,7 +56,20 @@ foreach (DictionaryEntry resource in resxReader)
             }
             """;
 
+        fileWriter.WriteLine(arbPlaceholderValue);
     }
+
+    resCount++;
+}
+
+fileWriter.WriteLine('}');
+
+Console.WriteLine($"{resCount} resources converted to arb. \nPress Any key to exit.");
+Console.ReadKey();
+
+static string CamelCaseString(string inputString)
+{
+    return char.ToLower(inputString[0]) + inputString.Substring(1);
 }
 
 static List<string> FindAndReplacePlaceHolders(out string processedString, string resxValue, string numericPlaceHolderValue)
@@ -67,8 +88,8 @@ static List<string> FindAndReplacePlaceHolders(out string processedString, strin
             return "{"+newPlaceholder+"}";
         }
 
-        result.Add(placeholder);
-        return "{"+match.Value+"}";
+        result.Add(CamelCaseString(placeholder));
+        return "{"+CamelCaseString(match.Value)+"}";
     });
 
     processedString = processed;
