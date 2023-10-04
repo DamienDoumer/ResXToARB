@@ -25,10 +25,12 @@ foreach (DictionaryEntry resource in resxReader)
         continue;
 
     Debug.WriteLine($"## Writing resource: {resource}");
+    var key = CamelCaseString(resource.Key.ToString()!);
+
     var placeholders = FindAndReplacePlaceHolders(out string processedString,
         resource.Value.ToString()!, NumericPlaceHolder);
     string arbResourceDef = $"""
-        "{CamelCaseString(resource.Key.ToString()!)}": "{processedString}",
+        "{key}": "{processedString}",
         """;
 
     fileWriter.WriteLine(arbResourceDef);
@@ -36,12 +38,17 @@ foreach (DictionaryEntry resource in resxReader)
     if (placeholders.Any())
     {
         StringBuilder placeholderBuilder = new StringBuilder();
-        foreach (var placeholder in placeholders)
+        for (var i = 0;i < placeholders.Count; i++)
         {
-            placeholderBuilder.Append($"\n\t\t\"{placeholder}\": {{}},\n");
+            var placeholder = placeholders[i];
+            placeholderBuilder.Append($"\n\t\t\"{placeholder}\": {{}}");
+            if (i < placeholders.Count - 1)
+                placeholderBuilder.Append(",\n");
+            else
+                placeholderBuilder.Append("\n");
         }
 
-        var arbPlaceholderValue = $"\"@{resource.Key}\": {{\n" +
+        var arbPlaceholderValue = $"\"@{key}\": {{\n" +
             """
                 "placeholders": {
             """ 
@@ -50,7 +57,7 @@ foreach (DictionaryEntry resource in resxReader)
                 +
            """
                 }
-            }
+            },
             """;
 
         fileWriter.WriteLine(arbPlaceholderValue);
