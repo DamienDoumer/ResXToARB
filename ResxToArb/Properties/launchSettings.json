@@ -2,7 +2,7 @@
   "profiles": {
     "ResxToArb": {
       "commandName": "Project",
-      "commandLineArgs": "..\\Youscribe.MobileApp\\Resources\\Texts\\TextResources.resx app_en.arb"
+      "commandLineArgs": "..\\Resources\\Texts\\TextResources.resx app_en.arb"
     }
   }
 }
